@@ -8,7 +8,7 @@ import (
 
 	"github.com/PaesslerAG/jsonpath"
 	"github.com/antchfx/xmlquery"
-	"github.com/buger/jsonparser"
+	"github.com/tidwall/gjson"
 )
 
 // pathModifier is used to modify the JSON path of an instance to indicate
@@ -460,10 +460,7 @@ func newScalarTransformer(path, transformIdentifier string, raw json.RawMessage,
 	}
 
 	if instanceType == "string" {
-		instanceFormat, err := jsonparser.GetString(raw, "format")
-		if err != nil && err != jsonparser.KeyPathNotFoundError {
-			return nil, fmt.Errorf("failed to extract instance format: %v", err)
-		}
+		instanceFormat := gjson.GetBytes(raw, "format").String()
 		if instanceFormat == "date-time" {
 			st.jsonType = "date-time"
 		}

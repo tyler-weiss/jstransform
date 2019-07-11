@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/buger/jsonparser"
+	"github.com/tidwall/gjson"
 )
 
 // WalkFunc processes a single Instance within a JSON schema file returning an error on any problems.
@@ -114,23 +114,26 @@ func walkRaw(raw json.RawMessage, path string, walkFn WalkRawFunc) error {
 		return fmt.Errorf("walkFn failed at path %q: %v", path, err)
 	}
 
-	iType, err := jsonparser.GetUnsafeString(raw, "type")
-	if err != nil {
-		return fmt.Errorf("failed to determine instance type at path %q: %v", path, err)
-	}
+	iType := gjson.GetBytes(raw, "type").String()
 
 	switch iType {
 	case "object":
-		if err := jsonparser.ObjectEach(raw, func(key []byte, value []byte, dataType jsonparser.ValueType, offset int) error {
-			return walkRaw(value, prependJSONPath(path, string(key)), walkFn)
-		}, "properties"); err != nil {
-			return fmt.Errorf("failed processing properties at path %q: %v", path, err)
+		res := gjson.GetBytes(raw, "properties")
+		if !res.Exists() {
+			return fmt.Errorf("properties required for object at path %s", path)
 		}
+		res.ForEach(func(key, value gjson.Result) bool {
+			if err := walkRaw([]byte(value.Raw), prependJSONPath(path, key.String()), walkFn); err != nil {
+				return false
+			}
+			return true
+		})
 	case "array":
-		items, _, _, err := jsonparser.Get(raw, "items")
-		if err != nil {
-			return fmt.Errorf("failed extracting items at path %q: %v", path, err)
+		res := gjson.GetBytes(raw, "items")
+		if !res.Exists() {
+			return fmt.Errorf("items required for array at path %s", path)
 		}
+		items := []byte(res.Raw)
 		if err := walkRaw(items, path+"[*]", walkFn); err != nil {
 			return fmt.Errorf("failed processing items at path %q: %v", path, err)
 		}

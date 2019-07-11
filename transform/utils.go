@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/buger/jsonparser"
+	"github.com/tidwall/gjson"
 )
 
 var indexRe = regexp.MustCompile(`\[([\d]+)\]`)
@@ -153,12 +153,11 @@ func convertString(raw interface{}) (interface{}, error) {
 }
 
 func extractTransformInstructions(raw json.RawMessage, transformIdentifier, path string) (*transformInstructions, error) {
-	rawTransformInstruction, _, _, err := jsonparser.Get(raw, "transform", transformIdentifier)
-	if err != nil && err != jsonparser.KeyPathNotFoundError {
-		return nil, fmt.Errorf("failed to extract raw instance transform: %v", err)
-	} else if len(rawTransformInstruction) == 0 {
+	res := gjson.GetBytes(raw, strings.Join([]string{"transform", transformIdentifier}, "."))
+	if !res.Exists() {
 		return nil, nil
 	}
+	rawTransformInstruction := []byte(res.Raw)
 
 	splits := strings.Split(path, ".")
 	parentPath := strings.Join(splits[:len(splits)-1], ".")

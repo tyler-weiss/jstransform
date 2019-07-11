@@ -15,6 +15,8 @@ require (
 	github.com/onsi/gomega v1.4.3 // indirect
 	github.com/philhofer/fwd v1.0.0 // indirect
 	github.com/stretchr/testify v1.3.0 // indirect
+	github.com/tidwall/gjson v1.3.0
+	github.com/tidwall/sjson v1.0.4
 	github.com/ttacon/chalk v0.0.0-20160626202418-22c06c80ed31 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect

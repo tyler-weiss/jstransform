@@ -11,10 +11,9 @@ import (
 	"strings"
 
 	"github.com/antchfx/xmlquery"
+	"github.com/tidwall/gjson"
 
 	"github.com/GannettDigital/jstransform/jsonschema"
-
-	"github.com/buger/jsonparser"
 )
 
 // inputFormat denotes the type of transform to perfrom, the options are 'JSON' or 'XML'
@@ -177,11 +176,9 @@ func (tr *Transformer) findParent(path string) (instanceTransformer, error) {
 // walker is a WalkFunc for the Transformer which builds an representation of the fields and transforms in the schema.
 // This is later used to do the actual transform for incoming data
 func (tr *Transformer) walker(path string, value json.RawMessage) error {
-	instanceType, err := jsonparser.GetString(value, "type")
-	if err != nil {
-		return fmt.Errorf("failed to extract instance type: %v", err)
-	}
+	instanceType := gjson.GetBytes(value, "type").String()
 
+	var err error
 	var iTransformer instanceTransformer
 	switch instanceType {
 	case "object":

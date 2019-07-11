@@ -437,154 +437,154 @@ func TestWalkJSONSchemaRaw(t *testing.T) {
 			schemaPath:  "./test_data/image.json",
 			want: map[string]json.RawMessage{
 				"$.type": []byte(`{
-      "type": "string",
-      "enum": [
-        "image"
-      ]
-    }`),
+			      "type": "string",
+			      "enum": [
+			        "image"
+			      ]
+			    }`),
 				"$.crops": []byte(`{
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "default": "name"
-          },
-          "width": {
-            "type": "number"
-          },
-          "height": {
-            "type": "number"
-          },
-          "path": {
-            "type": "string"
-          },
-          "relativePath": {
-            "type": "string"
-          }
-        },
-        "required":[
-          "name",
-          "width",
-          "height",
-          "path",
-          "relativePath"
-        ]
-      }
-    }`),
+			      "type": "array",
+			      "items": {
+			        "type": "object",
+			        "properties": {
+			          "name": {
+			            "type": "string",
+			            "default": "name"
+			          },
+			          "width": {
+			            "type": "number"
+			          },
+			          "height": {
+			            "type": "number"
+			          },
+			          "path": {
+			            "type": "string"
+			          },
+			          "relativePath": {
+			            "type": "string"
+			          }
+			        },
+			        "required":[
+			          "name",
+			          "width",
+			          "height",
+			          "path",
+			          "relativePath"
+			        ]
+			      }
+			    }`),
 				"$.crops[*]": []byte(`{
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "default": "name"
-          },
-          "width": {
-            "type": "number"
-          },
-          "height": {
-            "type": "number"
-          },
-          "path": {
-            "type": "string"
-          },
-          "relativePath": {
-            "type": "string"
-          }
-        },
-        "required":[
-          "name",
-          "width",
-          "height",
-          "path",
-          "relativePath"
-        ]
-      }`),
+			        "type": "object",
+			        "properties": {
+			          "name": {
+			            "type": "string",
+			            "default": "name"
+			          },
+			          "width": {
+			            "type": "number"
+			          },
+			          "height": {
+			            "type": "number"
+			          },
+			          "path": {
+			            "type": "string"
+			          },
+			          "relativePath": {
+			            "type": "string"
+			          }
+			        },
+			        "required":[
+			          "name",
+			          "width",
+			          "height",
+			          "path",
+			          "relativePath"
+			        ]
+			      }`),
 				"$.crops[*].name": []byte(`{
-            "type": "string",
-            "default": "name"
-          }`),
+			            "type": "string",
+			            "default": "name"
+			          }`),
 				"$.crops[*].width": []byte(`{
-            "type": "number"
-          }`),
+			            "type": "number"
+			          }`),
 				"$.crops[*].height": []byte(`{
-            "type": "number"
-          }`),
+			            "type": "number"
+			          }`),
 				"$.crops[*].path": []byte(`{
-            "type": "string"
-          }`),
+			            "type": "string"
+			          }`),
 				"$.crops[*].relativePath": []byte(`{
-            "type": "string"
-          }`),
+			            "type": "string"
+			          }`),
 				"$.URL": []byte(`{
-      "type": "object",
-      "properties": {
-        "publish": {
-          "type": "string",
-          "transform": {
-            "cumulo": {
-              "from" : [
-                {
-                  "jsonPath": "$.publishUrl"
-                }
-              ]
-            }
-          }
-        },
-        "absolute": {
-          "type": "string",
-          "transform": {
-            "cumulo": {
-              "from" : [
-                {
-                  "jsonPath": "$.absoluteUrl"
-                }
-              ]
-            }
-          }
-        }
-      },
-      "required":[
-        "publish",
-        "absolute"
-      ]
-    }`),
+			      "type": "object",
+			      "properties": {
+			        "publish": {
+			          "type": "string",
+			          "transform": {
+			            "cumulo": {
+			              "from" : [
+			                {
+			                  "jsonPath": "$.publishUrl"
+			                }
+			              ]
+			            }
+			          }
+			        },
+			        "absolute": {
+			          "type": "string",
+			          "transform": {
+			            "cumulo": {
+			              "from" : [
+			                {
+			                  "jsonPath": "$.absoluteUrl"
+			                }
+			              ]
+			            }
+			          }
+			        }
+			      },
+			      "required":[
+			        "publish",
+			        "absolute"
+			      ]
+			    }`),
 				"$.URL.publish": []byte(`{
-          "type": "string",
-          "transform": {
-            "cumulo": {
-              "from" : [
-                {
-                  "jsonPath": "$.publishUrl"
-                }
-              ]
-            }
-          }
-        }`),
+			          "type": "string",
+			          "transform": {
+			            "cumulo": {
+			              "from" : [
+			                {
+			                  "jsonPath": "$.publishUrl"
+			                }
+			              ]
+			            }
+			          }
+			        }`),
 				"$.URL.absolute": []byte(`{
-          "type": "string",
-          "transform": {
-            "cumulo": {
-              "from" : [
-                {
-                  "jsonPath": "$.absoluteUrl"
-                }
-              ]
-            }
-          }
-        }`),
+			          "type": "string",
+			          "transform": {
+			            "cumulo": {
+			              "from" : [
+			                {
+			                  "jsonPath": "$.absoluteUrl"
+			                }
+			              ]
+			            }
+			          }
+			        }`),
 			},
 		},
 		{
 			description: "Walk with allOf, no oneOf",
 			schemaPath:  "./test_data/embed_parent.json",
 			want: map[string]json.RawMessage{"$.type": []byte(`{
-      "type": "string",
-      "enum": [
-        "embed"
-      ]
-    }`),
+			      "type": "string",
+			      "enum": [
+			        "embed"
+			      ]
+			    }`),
 			},
 		},
 		{
@@ -593,143 +593,143 @@ func TestWalkJSONSchemaRaw(t *testing.T) {
 			schemaPath:  "./test_data/image_parent.json",
 			want: map[string]json.RawMessage{
 				"$.type": []byte(`{
-      "type": "string",
-      "enum": [
-        "image"
-      ]
-    }`),
+			      "type": "string",
+			      "enum": [
+			        "image"
+			      ]
+			    }`),
 				"$.crops": []byte(`{
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "default": "name"
-          },
-          "width": {
-            "type": "number"
-          },
-          "height": {
-            "type": "number"
-          },
-          "path": {
-            "type": "string"
-          },
-          "relativePath": {
-            "type": "string"
-          }
-        },
-        "required":[
-          "name",
-          "width",
-          "height",
-          "path",
-          "relativePath"
-        ]
-      }
-    }`),
+			      "type": "array",
+			      "items": {
+			        "type": "object",
+			        "properties": {
+			          "name": {
+			            "type": "string",
+			            "default": "name"
+			          },
+			          "width": {
+			            "type": "number"
+			          },
+			          "height": {
+			            "type": "number"
+			          },
+			          "path": {
+			            "type": "string"
+			          },
+			          "relativePath": {
+			            "type": "string"
+			          }
+			        },
+			        "required":[
+			          "name",
+			          "width",
+			          "height",
+			          "path",
+			          "relativePath"
+			        ]
+			      }
+			    }`),
 				"$.crops[*]": []byte(`{
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "default": "name"
-          },
-          "width": {
-            "type": "number"
-          },
-          "height": {
-            "type": "number"
-          },
-          "path": {
-            "type": "string"
-          },
-          "relativePath": {
-            "type": "string"
-          }
-        },
-        "required":[
-          "name",
-          "width",
-          "height",
-          "path",
-          "relativePath"
-        ]
-      }`),
+			        "type": "object",
+			        "properties": {
+			          "name": {
+			            "type": "string",
+			            "default": "name"
+			          },
+			          "width": {
+			            "type": "number"
+			          },
+			          "height": {
+			            "type": "number"
+			          },
+			          "path": {
+			            "type": "string"
+			          },
+			          "relativePath": {
+			            "type": "string"
+			          }
+			        },
+			        "required":[
+			          "name",
+			          "width",
+			          "height",
+			          "path",
+			          "relativePath"
+			        ]
+			      }`),
 				"$.crops[*].name": []byte(`{
-            "type": "string",
-            "default": "name"
-          }`),
+			            "type": "string",
+			            "default": "name"
+			          }`),
 				"$.crops[*].width": []byte(`{
-            "type": "number"
-          }`),
+			            "type": "number"
+			          }`),
 				"$.crops[*].height": []byte(`{
-            "type": "number"
-          }`),
+			            "type": "number"
+			          }`),
 				"$.crops[*].path": []byte(`{
-            "type": "string"
-          }`),
+			            "type": "string"
+			          }`),
 				"$.crops[*].relativePath": []byte(`{
-            "type": "string"
-          }`),
+			            "type": "string"
+			          }`),
 				"$.URL": []byte(`{
-      "type": "object",
-      "properties": {
-        "publish": {
-          "type": "string",
-          "transform": {
-            "cumulo": {
-              "from" : [
-                {
-                  "jsonPath": "$.publishUrl"
-                }
-              ]
-            }
-          }
-        },
-        "absolute": {
-          "type": "string",
-          "transform": {
-            "cumulo": {
-              "from" : [
-                {
-                  "jsonPath": "$.absoluteUrl"
-                }
-              ]
-            }
-          }
-        }
-      },
-      "required":[
-        "publish",
-        "absolute"
-      ]
-    }`),
+			      "type": "object",
+			      "properties": {
+			        "publish": {
+			          "type": "string",
+			          "transform": {
+			            "cumulo": {
+			              "from" : [
+			                {
+			                  "jsonPath": "$.publishUrl"
+			                }
+			              ]
+			            }
+			          }
+			        },
+			        "absolute": {
+			          "type": "string",
+			          "transform": {
+			            "cumulo": {
+			              "from" : [
+			                {
+			                  "jsonPath": "$.absoluteUrl"
+			                }
+			              ]
+			            }
+			          }
+			        }
+			      },
+			      "required":[
+			        "publish",
+			        "absolute"
+			      ]
+			    }`),
 				"$.URL.publish": []byte(`{
-          "type": "string",
-          "transform": {
-            "cumulo": {
-              "from" : [
-                {
-                  "jsonPath": "$.publishUrl"
-                }
-              ]
-            }
-          }
-        }`),
+			          "type": "string",
+			          "transform": {
+			            "cumulo": {
+			              "from" : [
+			                {
+			                  "jsonPath": "$.publishUrl"
+			                }
+			              ]
+			            }
+			          }
+			        }`),
 				"$.URL.absolute": []byte(`{
-          "type": "string",
-          "transform": {
-            "cumulo": {
-              "from" : [
-                {
-                  "jsonPath": "$.absoluteUrl"
-                }
-              ]
-            }
-          }
-        }`),
+			          "type": "string",
+			          "transform": {
+			            "cumulo": {
+			              "from" : [
+			                {
+			                  "jsonPath": "$.absoluteUrl"
+			                }
+			              ]
+			            }
+			          }
+			        }`),
 			},
 		},
 		{
@@ -738,47 +738,47 @@ func TestWalkJSONSchemaRaw(t *testing.T) {
 			schemaPath:  "./test_data/parent.json",
 			want: map[string]json.RawMessage{
 				"$.type": []byte(`{
-      "type": "string",
-      "enum": [
-        "array-of-array"
-      ]
-    }`),
+			      "type": "string",
+			      "enum": [
+			        "array-of-array"
+			      ]
+			    }`),
 				"$.crops": []byte(`{
-      "type": "array",
-      "items": {
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            }
-          }
-        }
-      }
-    }`),
+			      "type": "array",
+			      "items": {
+			        "type": "array",
+			        "items": {
+			          "type": "object",
+			          "properties": {
+			            "name": {
+			              "type": "string"
+			            }
+			          }
+			        }
+			      }
+			    }`),
 				"$.crops[*]": []byte(`{
-        "type": "array",
-        "items": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            }
-          }
-        }
-      }`),
+			        "type": "array",
+			        "items": {
+			          "type": "object",
+			          "properties": {
+			            "name": {
+			              "type": "string"
+			            }
+			          }
+			        }
+			      }`),
 				"$.crops[*][*]": []byte(`{
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string"
-            }
-          }
-        }`),
+			          "type": "object",
+			          "properties": {
+			            "name": {
+			              "type": "string"
+			            }
+			          }
+			        }`),
 				"$.crops[*][*].name": []byte(`{
-              "type": "string"
-            }`),
+			              "type": "string"
+			            }`),
 			},
 		},
 		{

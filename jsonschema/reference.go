@@ -2,13 +2,15 @@ package jsonschema
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
 
-	"github.com/buger/jsonparser"
 	"github.com/franela/goreq"
+	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
 )
 
 const (
@@ -27,10 +29,7 @@ func dereference(schemaPath string, data json.RawMessage, oneOfType string) (jso
 	}
 
 	for _, refPath := range refs {
-		ref, err := jsonparser.GetString(data, refPath...)
-		if err != nil {
-			return nil, fmt.Errorf("failed to retrieve ref at path %v: %v", refPath, err)
-		}
+		ref := gjson.GetBytes(data, strings.Join(refPath, ".")).String()
 
 		resolved, err := resolveRef(ref, data, schemaPath, oneOfType)
 		if err != nil {
@@ -39,30 +38,34 @@ func dereference(schemaPath string, data json.RawMessage, oneOfType string) (jso
 
 		destPath := refPath[:len(refPath)-1]
 		// It is necessary to delete the refKey reference so they are not refound
-		data = jsonparser.Delete(data, append(destPath, refKey)...)
+		data, err = sjson.DeleteBytes(data, strings.Join(refPath, "."))
+		if err != nil {
+			return nil, fmt.Errorf("failed to delete ref %q at path %v: %v", ref, refPath, err)
+		}
 
 		if len(destPath) != 0 {
 			// Attempt to read the `transform` object from the source data so that we can apply it after the ref resolving
 			// wipes out that object in the data. Ensures that transform is an object and errors if not.
-			transformPath := append(destPath, transformKey)
-			transform, dataType, _, err := jsonparser.Get(data, transformPath...)
-			if err != nil && err != jsonparser.KeyPathNotFoundError {
-				return nil, fmt.Errorf("failed to read transform object on source data at path %v: %v", transformPath, err)
-			}
-			if transform != nil && dataType != jsonparser.Object {
-				return nil, fmt.Errorf("transform object is wrong type %q, should be object", dataType)
-			}
+			transformPath := strings.Join(append(destPath, transformKey), ".")
+			res := gjson.GetBytes(data, transformPath)
 
 			// Set the resolved ref contents on the data. This wipes out existing fields in that object
-			data, err = jsonparser.Set(data, resolved, destPath...)
+			data, err = sjson.SetBytes(data, strings.Join(destPath, "."), resolved)
 			if err != nil {
 				return nil, fmt.Errorf("failed to update data with resolved ref %q at path %v: %v", ref, refPath, err)
 			}
 
 			// If we found a transform inside that object in the source data, apply that back since setting of the ref
 			// would have cleared it
+			if !res.Exists() {
+				continue
+			}
+			if !res.IsObject() {
+				return nil, errors.New("transform object is wrong type, should be object")
+			}
+			transform := res.Value()
 			if transform != nil {
-				data, err = jsonparser.Set(data, transform, transformPath...)
+				data, err = sjson.SetBytes(data, transformPath, transform)
 				if err != nil {
 					return nil, fmt.Errorf("failed to update data transform with resolved ref %q at path %v: %v", ref, refPath, err)
 				}
@@ -88,48 +91,44 @@ func dereference(schemaPath string, data json.RawMessage, oneOfType string) (jso
 func findRefs(data json.RawMessage) ([][]string, error) {
 	refs := make([][]string, 0)
 
-	err := jsonparser.ObjectEach(data, func(key []byte, value []byte, dataType jsonparser.ValueType, offset int) error {
-		sKey := string(key)
-		switch dataType {
-		case jsonparser.String:
+	obj := gjson.ParseBytes(data)
+	obj.ForEach(func(key, value gjson.Result) bool {
+		sKey := key.String()
+		switch {
+		case value.Type == gjson.String:
 			if sKey == refKey {
 				refs = append(refs, []string{sKey})
 			}
-		case jsonparser.Object:
-			childRefs, err := findRefs(value)
+		case value.IsObject():
+			childRefs, err := findRefs([]byte(value.Raw))
 			if err != nil {
-				return err
+				return false
 			}
 			for _, r := range childRefs {
 				combined := append([]string{sKey}, r...)
 				refs = append(refs, combined)
 			}
-		case jsonparser.Array:
+		case value.IsArray():
 			var index int
-			_, err := jsonparser.ArrayEach(value, func(avalue []byte, adataType jsonparser.ValueType, aoffset int, aerr error) {
-				currentIndex := fmt.Sprintf("[%d]", index)
+			value.ForEach(func(key, value gjson.Result) bool {
+				currentIndex := fmt.Sprintf("%d", index)
 				index++
-				if adataType != jsonparser.Object {
-					return
+				if !value.IsObject() {
+					return true
 				}
-				cRefs, err := findRefs(avalue)
+				cRefs, err := findRefs([]byte(value.Raw))
 				if err != nil {
-					return
+					return true
 				}
 				for _, r := range cRefs {
 					combined := append([]string{sKey, currentIndex}, r...)
 					refs = append(refs, combined)
 				}
+				return true
 			})
-			if err != nil {
-				return err
-			}
 		}
-		return nil
+		return true
 	})
-	if err != nil {
-		return nil, err
-	}
 
 	return refs, nil
 }
@@ -193,17 +192,17 @@ func resolveRef(ref string, data json.RawMessage, schemaPath string, oneOfType s
 	if target == "" {
 		data = source
 	} else {
-		data, _, _, err = jsonparser.Get(source, strings.Split(target, "/")...)
+		data = []byte(gjson.GetBytes(source, strings.Replace(target, "/", ".", -1)).Raw)
 		if err != nil {
 			return nil, fmt.Errorf("failed to retrieve ref %q: %v", target, err)
 		}
 	}
 
-	data = []byte(strings.TrimSpace(string(data)))
-	data, err = jsonparser.Set(data, []byte(fmt.Sprintf("%q", ref)), fromRef)
+	trimmed := strings.TrimSpace(string(data))
+	updated, err := sjson.Set(trimmed, fromRef, ref)
 	if err != nil {
 		return nil, fmt.Errorf("failed to set fromRef for reference %q: %v", ref, err)
 	}
 
-	return data, nil
+	return []byte(updated), nil
 }
