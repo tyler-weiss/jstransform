@@ -49,6 +49,18 @@ func TestBuildAvroSchemaFile(t *testing.T) {
 			wantPath:    "./test_data/arrays.avsc.out",
 		},
 		{
+			description: "Nested",
+			name:        "Nested",
+			goPath:      "./avro_test_data/nested.go",
+			wantPath:    "./avro_test_data/nested.avsc.out",
+		},
+		{
+			description: "Nested - nonest",
+			name:        "Nested",
+			goPath:      "./avro_test_data/nonest/nested.go",
+			wantPath:    "./avro_test_data/nested.avsc.out",
+		},
+		{
 			description: "Time fields",
 			name:        "Times",
 			goPath:      "./test_data/times.go",
